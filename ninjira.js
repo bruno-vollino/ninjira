@@ -26,21 +26,27 @@ function injectScriptToPage(func) {
 // given issue-parent element and returns the formatted message.
 // returns null if any of the 4 elements is not found.
 function generateMessage(button) {
-    const parentGroup = button.parents("div.ghx-parent-group");
+    const storyLane = button.closest(".ghx-swimlane");
+    const storyHeader = storyLane.find(".ghx-heading");
 
-    const storyKey = parentGroup.find("span.ghx-key");
+    const storyKey = storyHeader.find(".ghx-parent-key");
     if(storyKey.length != 1) {
         console.log("Expected to find one story-key but found " + storyKey.length);
         return null;
     }
     const storyId = $(storyKey[0]).text();
 
-    const storySummary = parentGroup.find("span.ghx-summary");
+    const storySummary = storyHeader.find(".ghx-summary")                            
     if(storySummary.length != 1) {
         console.log("Expected to find one story-summary but found " + storySummary.length);
         return null;
     }
-    const storyDesc = $(storySummary[0]).text();
+    const storyDesc = $(storySummary[0]).contents()
+        .filter(function () {
+            return this.nodeType === Node.TEXT_NODE;
+        })
+        .text()
+        .trim();
 
     const subTaskLink = button.siblings("a.ghx-key-link");
     if(subTaskLink.length != 1) {
